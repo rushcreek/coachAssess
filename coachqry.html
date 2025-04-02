@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EmpowerStrengths Inventory</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 2rem;
+      background: #f5f7fa;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      color: #444;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box; /* Important for padding to be included in width */
+    }
+    .inventory-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .inventory-item:last-child {
+      border-bottom: none;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #0078d7;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005ea2;
+    }
+    .radio-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .radio-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    #inventoryForm {
+      display: none; /* Initially hidden */
+    }
+    .divider {
+      margin: 2rem 0;
+      border-bottom: 2px solid #ccc;
+      text-align: center;
+      position: relative;
+    }
+
+    .divider span {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 0.5rem;
+      font-weight: bold;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EmpowerStrengths Inventory</h1>
+    <form id="inventoryForm">
+      <!-- Contact Information -->
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="role">Role and Company Type:</label>
+        <input type="text" id="role" name="role" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="" readonly required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" required>
+      </div>
+      
+      <h2>Self-Assessment (1-5 Scale)</h2>
+      <p>Rate your current strength level for each theme, where 1 is "Needs improvement" and 5 is "Excellent".</p>
+      
+      <div id="inventoryItems"></div>
+
+      <div class="divider"><span>Now answer two quick questions as thoroughly as possible</span></div>
+
+      <div class="form-group">
+        <label for="greatestChallenge">What is currently your greatest challenge?</label>
+        <textarea id="greatestChallenge" name="greatestChallenge" rows="4" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="perfectAssistant">If you could magically be assigned the perfect assistant, what would they be good at?</label>
+        <textarea id="perfectAssistant" name="perfectAssistant" rows="4" required></textarea>
+      </div>
+      
+      <button type="submit">Submit</button>
+    </form>
+    <div id="successMessage" style="display:none; color: green;">
+      Thank you for your submission! You will be redirected to danwegner.com shortly.
+    </div>
+    <div id="errorMessage" style="display:none; color: red;">
+      Please contact Dan to get a link for the EmpowerStrength Assessment.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // Function to ROT13 encode a string
+      const rot13 = (str) => {
+        return str.replace(/[a-zA-Z]/g, (char) => {
+          const start = char <= 'Z' ? 65 : 97;
+          return String.fromCharCode(start + (char.charCodeAt(0) - start + 13) % 26);
+        });
+      };
+
+      // Get query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get('email');
+      const rot13Email = urlParams.get('rot13email');
+
+      // Validate email and ROT13 email
+      if (email && rot13Email && rot13(email) === rot13Email) {
+        // Show the form
+        document.getElementById('inventoryForm').style.display = 'block';
+		document.getElementById('email').value = email; // Insert email into the form field
+      } else {
+        // Show the error message
+        document.getElementById('errorMessage').style.display = 'block';
+      }
+
+      // Modern array of inventory items with themes and descriptions
+      const inventoryItems = [
+        { theme: "Achiever", description: "Thrives on productivity and tangible progress." },
+        { theme: "Innovator", description: "Enjoys creative solutions and thinking outside the box." },
+        { theme: "Strategic Thinker", description: "Naturally sees patterns and plans effectively." },
+        { theme: "Relationship Builder", description: "Excels at building strong connections." },
+        { theme: "Analytical", description: "Breaks down data to find meaningful insights." },
+        { theme: "Adaptable", description: "Quickly adjusts to new situations." },
+        { theme: "Communicator", description: "Expresses ideas clearly and effectively." },
+        { theme: "Visionary", description: "Sees the big picture and inspires others." },
+        { theme: "Empathic", description: "Understands others’ feelings and perspectives." },
+        { theme: "Collaborator", description: "Values teamwork and collective success." },
+        { theme: "Resilient", description: "Bounces back quickly from setbacks." },
+        { theme: "Organized", description: "Keeps projects and schedules in order." },
+        { theme: "Lifelong Learner", description: "Passionate about acquiring new skills." },
+        { theme: "Motivator", description: "Inspires others to reach their potential." },
+        { theme: "Problem Solver", description: "Addresses challenges efficiently." },
+        { theme: "Integrator", description: "Brings diverse ideas together seamlessly." },
+        { theme: "Influencer", description: "Naturally drives initiatives and sways opinions." },
+        { theme: "Resourceful", description: "Maximizes available resources creatively." },
+        { theme: "Courageous", description: "Takes risks and steps out of the comfort zone." },
+        { theme: "Detail-Oriented", description: "Focuses on accuracy and quality." },
+        { theme: "Big Picture Focused", description: "Balances daily tasks with long-term vision." },
+        { theme: "Futuristic", description: "Always planning ahead for emerging trends." },
+        { theme: "Persuasive", description: "Excels at convincing and inspiring others." },
+        { theme: "Empowerer", description: "Supports and nurtures growth in others." },
+        { theme: "Supportive", description: "Provides stability and encouragement." },
+        { theme: "Curious", description: "Driven to explore new ideas and technologies." },
+        { theme: "Decisive", description: "Makes clear, timely decisions." },
+        { theme: "Optimistic", description: "Maintains a positive outlook through challenges." },
+        { theme: "Planner", description: "Develops structured approaches and anticipates needs." },
+        { theme: "Flexible", description: "Embraces change and thrives in dynamic environments." }
+      ];
+
+      // Reference to the container where inventory items will be inserted
+      const inventoryContainer = document.getElementById('inventoryItems');
+
+      // Generate the HTML for each inventory item
+      const renderInventoryItems = () => {
+        const itemsHTML = inventoryItems.map((item, idx) => {
+          const radios = [1,2,3,4,5].map(num => `
+            <label>
+              <input type="radio" name="${item.theme}" value="${num}" required>
+              ${num}
+            </label>
+          `).join(' ');
+          return `
+            <div class="inventory-item">
+              <strong>${item.theme}</strong>: ${item.description}
+              <div class="radio-group">
+                ${radios}
+              </div>
+            </div>
+          `;
+        }).join('');
+        inventoryContainer.innerHTML = itemsHTML;
+      };
+
+      // Initialize the app
+      const init = () => {
+        renderInventoryItems();
+        document.getElementById('inventoryForm').addEventListener('submit', handleFormSubmit);
+      };
+
+      const handleFormSubmit = (event) => {
+        event.preventDefault();
+        const submitButton = document.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.style.display = 'none'; // Hide the submit button
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbylI__AhAgOtP9PhDleviUPhI9YMqLtVoRJzE__SL9ThdBXkzep-wKxXkI0YDwTrX-2YQ/exec';
+        const form = document.forms['inventoryForm'];
+
+        // Collect inventory data into a JSON object
+        const inventoryData = {};
+        inventoryItems.forEach(item => {
+          inventoryData[item.theme] = {
+            description: item.description,
+            score: form.elements[item.theme].value
+          };
+        });
+
+        // Add contact information to the JSON object
+        const formDataJSON = {
+          name: form.elements['name'].value,
+          role: form.elements['role'].value,
+          email: form.elements['email'].value,
+          phone: form.elements['phone'].value,
+          inventoryData: inventoryData,
+          greatestChallenge: form.elements['greatestChallenge'].value,
+          perfectAssistant: form.elements['perfectAssistant'].value
+        };
+
+        // Create a new form data object with the JSON data
+        const formData = new FormData();
+        formData.append('columnBData', JSON.stringify(formDataJSON)); // Rename the field
+
+        fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
+          .then(response => {
+            console.log('Success!', response);
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+              window.location.href = 'https://danwegner.com';
+            }, 3000);
+          })
+          .catch(error => console.error('Error!', error.message))
+      }
+
+      // Start the app when the DOM is fully loaded
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

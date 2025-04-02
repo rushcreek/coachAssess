@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ROT13 Link Generator</title>
+</head>
+<body>
+  <h1>ROT13 Link Generator</h1>
+  <form id="linkGeneratorForm">
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required>
+    <button type="submit">Generate Link</button>
+  </form>
+  <div id="linkContainer" style="display:none;">
+    <p>Here is your link:</p>
+    <a id="generatedLink" href="#"></a>
+  </div>
+
+  <script>
+    const rot13 = (str) => {
+      return str.replace(/[a-zA-Z]/g, (char) => {
+        const start = char <= 'Z' ? 65 : 97;
+        return String.fromCharCode(start + (char.charCodeAt(0) - start + 13) % 26);
+      });
+    };
+
+    document.getElementById('linkGeneratorForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const rot13Email = rot13(email);
+      const baseUrl = 'https://assess.danwegner.com';
+      const generatedLink = `${baseUrl}?email=${encodeURIComponent(email)}&rot13email=${encodeURIComponent(rot13Email)}`;
+
+      document.getElementById('generatedLink').href = generatedLink;
+      document.getElementById('generatedLink').textContent = generatedLink;
+      document.getElementById('linkContainer').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
