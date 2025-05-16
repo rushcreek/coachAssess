@@ -1,0 +1,87 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hello World API",
+    "description": "A simple Google Apps Script API that returns 'Hello, World!' when called with a valid API key",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec",
+      "description": "Google Apps Script deployment URL"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "getHelloWorld",
+        "summary": "Get Hello World message",
+        "description": "Returns 'Hello, World!' when called with a valid API key",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "description": "API key for authentication",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Th1sIsAM0reC0mplexK3y!@#$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Hello, World!"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ERROR"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid API key"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "key"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
