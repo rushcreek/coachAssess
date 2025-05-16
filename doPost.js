@@ -27,7 +27,7 @@ function doPost(e) {
   // Extract data from the JSON object
   const name = formDataJSON.name || '';
   const role = formDataJSON.role || '';
-  const email = formDataJSON.email || '';
+  let email = formDataJSON.email || '';
   const phone = formDataJSON.phone || '';
   const inventoryData = formDataJSON.inventoryData || {};
 
@@ -39,9 +39,10 @@ function doPost(e) {
 
   // Send email notification with JSON attachment
   try {
-    const emailAddress = "your_email@example.com"; // Replace with your email address
+    email = email.trim(); // Trim the email address
+    const emailAddress = "rushcreek@gmail.com, " + email; // Replace with your email address
     const subject = "Assessment Submission by " + name;
-    const body = "A new row has been added to the Google Sheet. The JSON data is attached.";
+    const body = "The JSON data of your EmpowerStrengths assessment is attached.\n\n You can use our custom GPT to analyze your data file at:\n\n https://chatgpt.com/g/g-67ed4ab1321c8191aee10ea6935a5736-empowerstrengths-assessment ";
 
     // Sanitize the email address to be a valid filename
     const filename = email.replace(/[^a-zA-Z0-9]/g, "_") + ".json";
@@ -57,6 +58,10 @@ function doPost(e) {
     Logger.log('Email notification sent successfully with JSON attachment.');
   } catch (emailError) {
     Logger.log('Error sending email: ' + emailError);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ERROR', message: 'Error sending email: ' + emailError }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader("Access-Control-Allow-Origin", "*")
+      .setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   }
 
   // Return a success message with CORS headers
